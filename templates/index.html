@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" type="text/css" href="../static/main.css">
+        
+        
+        <title>Portfolio Simulator</title>
+    </head>
+    <body style="overflow: visible">
+        <main>
+            <header class="header">
+                <img src="../static/logo.png">
+                <h1>Portfolio Simulator</h1>
+            </header>
+            <div class="alert">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+            <div style="text-align: center;">
+                <form class="selections" method="POST" action="/verify-account">
+                    <fieldset>
+                        <legend>Log In</legend>
+                        <label for="username">Username</label><br>
+                        <input type="text" id="username" name="username" required="True" autofocus="True"><br>
+                        <br>
+                        <br>
+                        <label for="password">Password</label><br>
+                        <input type="password" id="password" name="password" required="True"><br>
+                    </fieldset>
+                    <button class="idx-button" type="submit">Log In</button>
+                </form>
+                <a href="/create-account">Create Account</a>
+            </div>
+            <div style="text-align: center;">
+                <p>
+                    Help create and simulate possible financial portfolios to explore your growth opportunities
+                </p>
+            </div>
+
+        </main>
+        <footer>
+            <p>&copy; 2025 anperger</p>
+        </footer>
+    </body>
+</html>
