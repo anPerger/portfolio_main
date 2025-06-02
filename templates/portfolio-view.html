@@ -48,6 +48,10 @@
                     <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}">
                     <button class="idx-button" type="submit">Sim</button>
                 </form>
+                <form class="selections" method="post" action="/sim-results/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                    <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}">
+                    <button class="idx-button" type="submit">View Previous Sim</button>
+                </form>
             </div>
 
             <div style="display: flex; justify-content: center;">

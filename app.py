@@ -11,7 +11,7 @@ import json
 app = Flask(__name__)
 app.secret_key = "portfolio"
 
-sim_microservice_url = "http://127.0.0.1:8001/sim"
+sim_microservice_url = "http://127.0.0.1:8001/"
 acct_microservice_url = "http://127.0.0.1:8002/"
 portfolio_microservice_url = "http://127.0.0.1:8003/"
 analysis_microservice_url = "http://127.0.0.1:8004/analysis"
@@ -21,13 +21,6 @@ historic_microservice_url = "http://127.0.0.1:8005/return-historic-avgs"
 # Configuration 
 app.config["SESSION_PERMANENT"] = False     # Sessions expire when the browser is closed
 app.config["SESSION_TYPE"] = "filesystem"     # Store session data in files
-
-
-# users_col.delete_one({"username": "abc"})
-# historic_averages.delete_one({"type": "bonds"})
-# historic_averages.delete_one({"type": "stocks"})
-# historic_averages.delete_one({"type": "inflation"})
-
 
 
 def call_sim_microservice(sim_request_string):
@@ -49,8 +42,6 @@ def call_analysis_microservice(analysis_request_string):
 def call_historic_microservice(historic_request_string):
     response = requests.get(historic_request_string)
     return response.json().get("results")
-
-
 
 
 @app.route("/")
@@ -86,7 +77,7 @@ def profile():
         return redirect("/")
 
     username = session["name"]
-
+    
     fetch_profile_string = f"fetch-account?username={username}"
     fetch_profile_query = acct_microservice_url + fetch_profile_string
 
@@ -154,6 +145,7 @@ def update_profile():
     if results["success"] == 1:
         success_msg = "Your profile has been updated"
         flash(success_msg, "success")
+        user_auth = password
         return redirect("/build-default-portfolio")
     else:
         error_msg = results["error_msg"]
@@ -301,7 +293,6 @@ def build_default_portfolio():
 
 @app.route("/custom-portfolio", methods=["GET", "POST"])
 def custom_portfolio():
-    print("here")
     if not session.get("name"):
         return redirect("/")
     return render_template("custom-portfolio.html")
@@ -318,7 +309,6 @@ def save_portfolio():
     bonds = request.form.get("bonds")
     cash = request.form.get("cash")
     save_type = request.form.get("save-type")
-    print(save_type)
 
     if not stocks:
         stocks = 0
@@ -386,7 +376,6 @@ def portfolio_list():
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     results = call_portfolio_microservice(portfolio_search_query)
-    # print(results)
 
     custom_portfolios = []
     for portfolio in results:
@@ -411,7 +400,6 @@ def portfolio_view(portfolio_name):
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
-    # print(portfolio)
 
     
     return render_template("portfolio-view.html", portfolio=portfolio)
@@ -485,22 +473,31 @@ def sim(portfolio_name):
     horizon = user_data["horizon"]
     
 
-    # portfolio_name = request.form.get("portfolio-name")
-    print(portfolio_name)
-
     portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
-    print(portfolio)
 
     hist_avgs = call_historic_microservice(historic_microservice_url)
     stock_avgs = hist_avgs["stocks"]
     bond_avgs = hist_avgs["bonds"]
     inflation_avgs = hist_avgs["inflation"]
+
+    stock_yield = round(stock_avgs["yield"], 2) 
+    stock_std = round(stock_avgs["std"], 2)
+    stock_div = round(stock_avgs["dividend"], 2)
+
+    bond_yield = round(bond_avgs["yield"], 2)
+    bond_std = round(bond_avgs["std"], 2)
+    bond_div = round(bond_avgs["dividend"], 2)
+
+    inflation_rate = round(inflation_avgs["rate"], 2)
+    inflation_std = round(inflation_avgs["std"], 2)
        
     return render_template("sim.html", horizon=horizon, portfolio=portfolio, 
-                           stock_avgs=stock_avgs, bond_avgs=bond_avgs, inflation_avgs=inflation_avgs)
+                           stock_yield=stock_yield, stock_std=stock_std, stock_div=stock_div,
+                           bond_yield=bond_yield, bond_std=bond_std, bond_div=bond_div,
+                           inflation_rate=inflation_rate, inflation_std=inflation_std)
 
 @app.route("/sim-portfolio/<portfolio_name>", methods=["GET", "POST"])
 def sim_portfolio(portfolio_name):
@@ -542,25 +539,42 @@ def sim_portfolio(portfolio_name):
 
     horizon = request.form.get("horizon")
     num_sims = request.form.get("sims")
-    principal = request.form.get("princiapl")
+    principal = request.form.get("principal")
+
     reinvest = request.form.get("reinvest")
 
     if not stock_ret:
         stock_ret = stock_avgs["yield"]
+    else:
+        stock_ret = float(stock_ret) / 100
     if not stock_std:
         stock_std = stock_avgs["std"]
+    else:
+        stock_std = float(stock_std) / 100
     if not stock_div:
         stock_div = stock_avgs["dividend"]
+    else:
+        stock_div = float(stock_div) / 100
     if not bond_ret:
         bond_ret = bond_avgs["yield"]
+    else:
+        bond_ret = float(bond_ret) / 100
     if not bond_std:
         bond_std = bond_avgs["std"]
+    else:
+        bond_std = float(bond_std) / 100
     if not bond_div:
         bond_div = bond_avgs["dividend"]
+    else:
+        bond_div = float(bond_div) / 100
     if not inflation_rate:
         inflation_rate = inflation_avgs["rate"]
+    else:
+        inflation_rate = float(inflation_rate) / 100
     if not inflation_std:
         inflation_std = inflation_avgs["std"]
+    else:
+        inflation_std = float(inflation_std) / 100
     if not horizon:
         horizon = user_data["horizon"]
     if not num_sims:
@@ -570,7 +584,7 @@ def sim_portfolio(portfolio_name):
     if not reinvest:
         reinvest = True
 
-    query_string = "?user_stocks=" + str(user_stocks)
+    query_string = "/sim?user_stocks=" + str(user_stocks)
     query_string += "&user_bonds=" + str(user_bonds)
     query_string += "&user_cash=" + str(user_cash)
     query_string += "&user_horizon=" + str(horizon)
@@ -585,19 +599,42 @@ def sim_portfolio(portfolio_name):
     query_string += "&sims=" + str(num_sims)
     query_string += "&principal=" + str(principal)
     query_string += "&reinvest=" + str(reinvest)
+    query_string += "&portfolio_name=" + portfolio_name
+    query_string += "&username=" + username
 
     sim_request_string = sim_microservice_url + query_string
     
     sim_results = call_sim_microservice(sim_request_string)
+        
+    if sim_results["success"] == 1:
+        analysis_string = f"?username={username}&portfolio_name={portfolio_name}"
+        analysis_query = analysis_microservice_url + analysis_string
+        analysis_results = call_analysis_microservice(analysis_query)
 
-    print(sim_results)
+    if analysis_results["success"] == 1:
+        flash("Your simulation has been run", "success")
+        return redirect(f"/sim-results/{portfolio_name}")
+    else:
+        flash(analysis_results["error_msg"], "error")
+        return redirect(f"/sim/{portfolio_name}")
 
-    resp = requests.post(analysis_microservice_url, json=sim_results)
-    if resp.ok:
-        print(resp.json())
+@app.route("/sim-results/<portfolio_name>", methods=["GET", "POST"])
+def sim_results(portfolio_name):
+    if not session.get("name"):
+        return redirect("/")
+    
+    username = session["name"]
 
-    return jsonify(sim_results)
+    check_string = f"/check-sim?username={username}&portfolio_name={portfolio_name}"
+    check_query = sim_microservice_url + check_string
 
+    sim_run = call_sim_microservice(check_query)
+
+    if sim_run["success"] == 0:
+        flash(sim_run["error_msg"], "error")
+        return redirect(f"/sim/{portfolio_name}")
+    else:
+        return render_template("sim-results.html", username=username, portfolio_name=portfolio_name)
 
 
 if __name__ == "__main__":

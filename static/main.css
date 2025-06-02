@@ -1,5 +1,4 @@
 
-
 body {
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     font-weight: 400;
@@ -57,10 +56,24 @@ footer {
     padding: 2%;
 }
 
-form {
-    margin: 5px;
-    padding: 5px;
-  
+
+
+.formInputs {
+  position: relative;
+  width: 250px;
+  margin: 0 auto;
+}
+
+.formInputs label {
+  position: absolute;
+  right: 100%;
+  padding-right: 100px;
+  white-space: nowrap;
+}
+
+.formInputs input,
+.formInputs textarea {
+  width: 100%;
 }
 
 fieldset {
@@ -71,13 +84,6 @@ fieldset {
 legend {
     font-weight: bold;
 }
-/* label {
-    display: block;
-}
-select {
-    margin: 5px;
-    padding: 5px;
-} */
 
 button {
     background-color: black;
@@ -145,7 +151,7 @@ button:hover {
     margin: auto;
     width: 60%;
     padding-left: 100px;
-}
+} 
 
 section {
     margin: 2%;
@@ -166,4 +172,20 @@ caption {
     padding-bottom: 10px;
     font-weight: bold;
     color: red;
-  }
+} 
+
+.content {
+    justify-content: space-around;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+}
+
+figure {
+    text-align: center;
+}
+
+figcaption {
+    font-size: 24px;
+    text-align: center;
+}

@@ -44,11 +44,11 @@
                 </h3>
                 {% if custom_portfolios | length > 0 %}
                 {% for portfolio in custom_portfolios %}
-                <h4>
+                <h3>
                     <li>
                         <a href="/portfolio-view/{{ portfolio['portfolio_name'] }}">{{ portfolio['portfolio_name'] }}</a>
                     </li>
-                </h4>
+                </h3>
                 {% endfor %}
                 {% endif %}
 

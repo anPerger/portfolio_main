@@ -35,7 +35,7 @@
                 {% endif %}
                 {% endwith %}
             </div>   
-                     
+
             <div style="text-align: center; padding-top: 5%;" >
                 <h2>{{ portfolio["portfolio_name"] }}</h2>
                 <br>
@@ -43,40 +43,73 @@
                 <h4>Bond Allocation: {{ portfolio["bonds"] * 100 }}%</h4>
                 <h4>Cash Allocation: {{ portfolio["cash"] * 100 }}%</h4>
             </div>
+                     
+            
             <div style="display: flex; justify-content: center;">
                 <form class="selections" method="post" action="/sim-portfolio/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
                     <!-- <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}"> -->
                     <fieldset>
                         <legend>Input Values</legend>
-                        <label for="stock-ret">Average Annual Stock Returns</label>
-                        <input type="number" id="stock-ret" name="stock-ret" placeholder="{{ stock_avgs['yield'] }}"><br>
-                        <label for="stock-std">Stock Returns Standard Deviation</label>
-                        <input type="number" id="stock-std" name="stock-std" placeholder="{{ stock_avgs['std'] }}"><br>
-                        <label for="stock-div">Annual Stock Dividends</label>
-                        <input type="number" id="stock-div" name="stock-div" placeholder="{{ stock_avgs['dividend'] }}"><br>
 
-                        <label for="bond-ret">Average Annual Bond Returns</label>
-                        <input type="number" id="bond-ret" name="bond-ret" placeholder="{{ bond_avgs['yield'] }}"><br>
-                        <label for="bond-std">Bond Returns Standard Deviation</label>
-                        <input type="number" id="bond-std" name="bond-std" placeholder="{{ bond_avgs['std'] }}"><br>
-                        <label for="bond-div">Annual Bond Dividends</label>
-                        <input type="number" id="bond-div" name="bond-div" placeholder="{{ bond_avgs['dividend'] }}"><br>
+                        <p class="formInputs">
+                            <label for="stock-ret">Average Annual Stock Returns</label>
+                            <input step="0.01" min="-25" max="50" type="number" id="stock-ret" name="stock-ret" placeholder="{{ stock_yield * 100 }}%"><br>
+                        </p><br>
+                        
+                        <p class="formInputs">
+                            <label for="stock-std">Stock Returns Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="stock-std" name="stock-std" placeholder="{{ stock_std * 100 }}%"><br>
+                        </p><br>
 
-                        <label for="inflation-rate">Average Inflation Rate</label>
-                        <input type="number" id="inflation-rate" name="inflation-rate" placeholder="{{ inflation_avgs['rate'] }}"><br>
-                        <label for="inflation-std">Inflation Standard Deviation</label>
-                        <input type="number" id="inflation-std" name="inflation-std" placeholder="{{ inflation_avgs['std'] }}"><br>
+                        <p class="formInputs">
+                            <label for="stock-div">Annual Stock Dividends</label>
+                            <input step="0.01" min="0" max="25" type="number" id="stock-div" name="stock-div" placeholder="{{ stock_div * 100 }}%"><br>
+                        </p><br>
 
-                        <label for="horizon">Horizon</label>
-                        <input type="number" id="horizon" name="horizon" placeholder="{{ horizon }}"><br>
+                        <p class="formInputs">
+                            <label for="bond-ret">Average Annual Bond Returns</label>
+                            <input step="0.01" min="-25" max="50" type="number" id="bond-ret" name="bond-ret" placeholder="{{ bond_yield * 100 }}%"><br>
+                        </p><br>
 
-                        <label for ="principal">Principal Investment Amount</label>
-                        <input type="number" id="principal" name="principal" placeholder="$1000"><br>
+                        <p class="formInputs">
+                            <label for="bond-std">Bond Returns Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="bond-std" name="bond-std" placeholder="{{ bond_std * 100 }}%"><br>
+                        </p><br>
 
-                        <label for="sims">Number of Simulations</label>
-                        <input type="number" id="sims" name="sims" placeholder="1000"><br>
+                        <p class="formInputs">
+                            <label for="bond-div">Annual Bond Dividends</label>
+                            <input step="0.01" min="0" max="25" type="number" id="bond-div" name="bond-div" placeholder="{{ bond_div * 100 }}%"><br>
+                        </p><br>
 
-                        <legend>Reinvest dividends?</legend>
+                        
+                        <p class="formInputs">
+                            <label for="inflation-rate">Average Inflation Rate</label>
+                            <input step="0.01" min="-10" max="25" type="number" id="inflation-rate" name="inflation-rate" placeholder="{{ inflation_rate * 100 }}%"><br>
+                        </p><br>
+                        
+
+                        <p class="formInputs">
+                            <label for="inflation-std">Inflation Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="inflation-std" name="inflation-std" placeholder="{{ inflation_std * 100 }}%"><br>
+                        </p><br>
+
+
+                        <p class="formInputs">
+                            <label for="horizon">Investment Time Horizon</label>
+                            <input type="number" id="horizon" name="horizon" placeholder="{{ horizon }}"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for ="principal">Principal Investment Amount</label>
+                            <input type="number" id="principal" name="principal" placeholder="$1000"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="sims">Number of Simulations</label>
+                            <input type="number" id="sims" name="sims" placeholder="1000" min="10" max="10000">
+                        </p><br>
+            
+                        <P>Reinvest Dividends?</P>
                         <label for="reinvest">True</label>
                         <input type="radio" id="reinvest" name="reinvest" value="True" required="True"><br>
                         <label for="reinvest">False</label>
@@ -84,9 +117,6 @@
                         
 
                     </fieldset>
-
-
-
 
                     <button class="idx-button" type="submit">Sim</button>
                 </form>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" type="text/css" href="../static/main.css">
+        
+        
+        <title>Portfolio Simulator</title>
+
+    </head>
+    <body style="overflow: visible">
+        <main>
+            <header class="header">
+                <img src="../static/logo.png">
+                <h1>Profile</h1>
+            </header>
+            <nav>
+                <a href="/profile">Profile</a>
+                <a href="/portfolio-list">Portfolio List</a>
+                <a href="/custom-portfolio">Create Custom Portfolio</a>
+                <div style="text-align: right;">
+                    <a href="/help">Help</a>
+                    <a href="/logout">Log Out</a>
+                </div>
+            </nav>
+            <div class="alert">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+           
+            <h2>Total Portfolio Returns</h2>
+            <div class="content">
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-portfolio-nominal.png" alt="portfolio nominal">
+                        <figcaption>Nominal Returns</figcaption>
+                    </figure>
+                </div>
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-portfolio-real.png" alt="portfolio real">
+                        <figcaption>Real Returns</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <h2>Stock Returns</h2>
+            <div class="content">
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-stocks-nominal.png" alt="stocks nominal">
+                        <figcaption>Nominal Returns</figcaption>
+                    </figure>
+                </div>
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-stocks-real.png" alt="stocks real">
+                        <figcaption>Real Returns</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <h2>Bond Returns</h2>
+            <div class="content">
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-bonds-nominal.png" alt="bonds nominal">
+                        <figcaption>Nominal Returns</figcaption>
+                    </figure>
+                </div>
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-bonds-real.png" alt="bonds real">
+                        <figcaption>Real Returns</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <h2>Cash Returns</h2>
+            <div class="content">
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-cash-nominal.png" alt="cash nominal">
+                        <figcaption>Nominal Returns</figcaption>
+                    </figure>
+                </div>
+                <div class="box">
+                    <figure>
+                        <img src="../static/imgs/{{username}}-{{portfolio_name}}-cash-real.png" alt="cash real">
+                        <figcaption>Real Returns</figcaption>
+                    </figure>
+                </div>
+            </div>
+         
+            
+
+        </main>
+        <footer>
+            <p>&copy; 2025 anperger</p>
+        </footer>
+    </body>
+</html>
