@@ -145,7 +145,6 @@ def update_profile():
     if results["success"] == 1:
         success_msg = "Your profile has been updated"
         flash(success_msg, "success")
-        user_auth = password
         return redirect("/build-default-portfolio")
     else:
         error_msg = results["error_msg"]
