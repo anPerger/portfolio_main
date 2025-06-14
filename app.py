@@ -1,21 +1,41 @@
 import os
-from flask import Flask, render_template, request, flash, redirect, session, jsonify
+from flask import Flask, render_template, request, flash, redirect, session, jsonify, render_template_string, g
+import dash
+from dash import Dash, html
+# import dash_html_components as html
 import requests
 import webbrowser
 from threading import Timer
 from bson.json_util import dumps, loads
 import json
+import pymongo
+from pymongo import MongoClient
+import pandas as pd
+import datetime
+import time
+import dash_app
 
 
+
+client = MongoClient()
+portfolio_accts_db = client["portfolio_accts"]
+users_col = portfolio_accts_db["users"]
 
 app = Flask(__name__)
+
+with app.app_context():
+    g.cur_app = app
+    app = dash_app.init_app("/dashboard/")
+
+
 app.secret_key = "portfolio"
 
 sim_microservice_url = "http://127.0.0.1:8001/"
 acct_microservice_url = "http://127.0.0.1:8002/"
 portfolio_microservice_url = "http://127.0.0.1:8003/"
-analysis_microservice_url = "http://127.0.0.1:8004/analysis"
 historic_microservice_url = "http://127.0.0.1:8005/return-historic-avgs"
+dash_microservice_url = "http://127.0.0.1:8050/"
+
 
 
 # Configuration 
@@ -35,14 +55,27 @@ def call_portfolio_microservice(portfolio_request_string):
     response = requests.get(portfolio_request_string)
     return response.json().get("results")
 
-def call_analysis_microservice(analysis_request_string):
-    response = requests.get(analysis_request_string)
-    return response.json().get("results")
-
 def call_historic_microservice(historic_request_string):
     response = requests.get(historic_request_string)
     return response.json().get("results")
 
+def call_dash_microservice(dash_request_string):
+    response = requests.get(dash_request_string)
+    return response.json().get("results")
+
+def verify_key(check_name):
+    if not session.get("name"):
+        return redirect("/")
+    
+    username = session.get("name")
+
+    if username != check_name:
+        return redirect("/")
+    
+    user_data = users_col.find_one({"username": username})
+    api_key = user_data["APIkey"]
+    
+    return api_key
 
 @app.route("/")
 def home():
@@ -77,8 +110,11 @@ def profile():
         return redirect("/")
 
     username = session["name"]
+
+    api_key = verify_key(username)
     
-    fetch_profile_string = f"fetch-account?username={username}"
+    
+    fetch_profile_string = f"fetch-account?username={username}&key={api_key}"
     fetch_profile_query = acct_microservice_url + fetch_profile_string
 
     user_data = call_acct_microservice(fetch_profile_query)
@@ -136,7 +172,10 @@ def update_profile():
     if not risk:
         risk = ""
 
-    update_profile_string = f"update-account?username={username}&password={password}&horizon={horizon}&risk={risk}"
+
+    api_key = verify_key(username) 
+
+    update_profile_string = f"update-account?username={username}&password={password}&horizon={horizon}&risk={risk}&key={api_key}"
     update_profile_query = acct_microservice_url + update_profile_string
 
     results = call_acct_microservice(update_profile_query)
@@ -182,7 +221,9 @@ def risk_survey_submit():
     if risk_score >= 19:
         risk = "High"
 
-    risk_string = f"/update-account?username={username}&password=&horizon=&risk={risk}"
+    api_key = verify_key(username)
+
+    risk_string = f"/update-account?username={username}&password=&horizon=&risk={risk}&key={api_key}"
     risk_query = acct_microservice_url + risk_string
    
     results = call_acct_microservice(risk_query)
@@ -204,7 +245,9 @@ def build_default_portfolio():
     
     username = session["name"]
     
-    fetch_profile_string = f"fetch-account?username={username}"
+    api_key = verify_key(username)
+
+    fetch_profile_string = f"fetch-account?username={username}&key={api_key}"
     fetch_profile_query = acct_microservice_url + fetch_profile_string
 
     user_data = call_acct_microservice(fetch_profile_query)
@@ -273,7 +316,8 @@ def build_default_portfolio():
             bond_allocation = 0.4
             cash_allocation = 0
 
-    portfolio_allocation_string = f"create-portfolio?username={username}&portfolio=Default-Portfolio&stocks={stock_allocation}&bonds={bond_allocation}&cash={cash_allocation}"
+    
+    portfolio_allocation_string = f"create-portfolio?username={username}&portfolio=Default-Portfolio&stocks={stock_allocation}&bonds={bond_allocation}&cash={cash_allocation}&key={api_key}"
     
     portfolio_allocation_query = portfolio_microservice_url + portfolio_allocation_string
 
@@ -287,7 +331,6 @@ def build_default_portfolio():
         error_msg = results["error_msg"]
         flash(error_msg, "error")
         return redirect("/profile")
-
 
 
 @app.route("/custom-portfolio", methods=["GET", "POST"])
@@ -343,7 +386,9 @@ def save_portfolio():
     bonds = bonds / 100
     cash = cash / 100
 
-    portfolio_allocation_string = f"create-portfolio?username={username}&portfolio={name}&stocks={stocks}&bonds={bonds}&cash={cash}"
+    api_key = verify_key(username)
+
+    portfolio_allocation_string = f"create-portfolio?username={username}&portfolio={name}&stocks={stocks}&bonds={bonds}&cash={cash}&key={api_key}"
     
     portfolio_allocation_query = portfolio_microservice_url + portfolio_allocation_string
 
@@ -365,26 +410,23 @@ def save_portfolio():
 
 @app.route("/portfolio-list", methods=["GET", "POST"])
 def portfolio_list():
-
     if not session.get("name"):
         return redirect("/")
     
     username = session["name"]
 
-    portfolio_search_string = f"return-portfolios?username={username}"
+    api_key = verify_key(username)
+
+    portfolio_search_string = f"return-portfolios?username={username}&key={api_key}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
-    results = call_portfolio_microservice(portfolio_search_query)
-
-    custom_portfolios = []
-    for portfolio in results:
-        if portfolio["portfolio_name"] != "Default-Portfolio":
-            custom_portfolios.append(portfolio)
-        else:
-            default_portfolio = portfolio
-
-
-    return render_template("portfolio-list.html", default_portfolio=default_portfolio, custom_portfolios=custom_portfolios)
+    portfolios = call_portfolio_microservice(portfolio_search_query)
+    if len(portfolios) < 1:
+        error_msg = "you have no portfolios yet. Update your account to have a default portfolio made for you or create a custom portfolio"
+        flash(error_msg, "error")
+        return redirect("/profile")
+    
+    return render_template("portfolio-list.html", portfolios=portfolios)
 
 
 
@@ -394,8 +436,10 @@ def portfolio_view(portfolio_name):
         return redirect("/")
     
     username = session["name"]
-    
-    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}"
+
+    api_key = verify_key(username)
+
+    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}&key={api_key}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
@@ -416,7 +460,9 @@ def delete_portfolio(portfolio_name):
         flash(error_msg, "error")
         return redirect("/profile")
     
-    portfolio_delete_string = f"delete-portfolio?username={username}&portfolio-name={portfolio_name}"
+    api_key = verify_key(username)
+
+    portfolio_delete_string = f"delete-portfolio?username={username}&portfolio-name={portfolio_name}&key={api_key}"
     portfolio_delete_query = portfolio_microservice_url + portfolio_delete_string
 
     results = call_portfolio_microservice(portfolio_delete_query)
@@ -443,7 +489,9 @@ def edit_portfolio(portfolio_name):
         flash(error_msg, "error")
         return redirect("/profile")
     
-    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}"
+    api_key = verify_key(username)
+
+    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}&key={api_key}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
@@ -465,14 +513,16 @@ def sim(portfolio_name):
     
     username = session["name"]
 
-    fetch_profile_string = f"fetch-account?username={username}"
+    api_key = verify_key(username)
+
+    fetch_profile_string = f"fetch-account?username={username}&key={api_key}"
     fetch_profile_query = acct_microservice_url + fetch_profile_string
 
     user_data = call_acct_microservice(fetch_profile_query)
     horizon = user_data["horizon"]
     
 
-    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}"
+    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}&key={api_key}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
@@ -505,7 +555,9 @@ def sim_portfolio(portfolio_name):
     
     username = session["name"]
 
-    fetch_profile_string = f"fetch-account?username={username}"
+    api_key = verify_key(username)
+
+    fetch_profile_string = f"fetch-account?username={username}&key={api_key}"
     fetch_profile_query = acct_microservice_url + fetch_profile_string
 
     user_data = call_acct_microservice(fetch_profile_query)
@@ -515,7 +567,7 @@ def sim_portfolio(portfolio_name):
     bond_avgs = hist_avgs["bonds"]
     inflation_avgs = hist_avgs["inflation"]
 
-    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}"
+    portfolio_search_string = f"return-portfolio?username={username}&portfolio-name={portfolio_name}&key={api_key}"
     portfolio_search_query = portfolio_microservice_url + portfolio_search_string
 
     portfolio = call_portfolio_microservice(portfolio_search_query)
@@ -600,22 +652,19 @@ def sim_portfolio(portfolio_name):
     query_string += "&reinvest=" + str(reinvest)
     query_string += "&portfolio_name=" + portfolio_name
     query_string += "&username=" + username
+    query_string += "&key=" + api_key
+
 
     sim_request_string = sim_microservice_url + query_string
     
-    sim_results = call_sim_microservice(sim_request_string)
+    sim_run = call_sim_microservice(sim_request_string)
         
-    if sim_results["success"] == 1:
-        analysis_string = f"?username={username}&portfolio_name={portfolio_name}"
-        analysis_query = analysis_microservice_url + analysis_string
-        analysis_results = call_analysis_microservice(analysis_query)
-
-    if analysis_results["success"] == 1:
-        flash("Your simulation has been run", "success")
-        return redirect(f"/sim-results/{portfolio_name}")
+    if sim_run["success"] == 1:
+        return redirect(f"/dashboard/report?username={username}&portfolio_name={portfolio_name}&key={api_key}")
     else:
-        flash(analysis_results["error_msg"], "error")
+        flash(sim_results["error_msg"], "error")
         return redirect(f"/sim/{portfolio_name}")
+
 
 @app.route("/sim-results/<portfolio_name>", methods=["GET", "POST"])
 def sim_results(portfolio_name):
@@ -624,7 +673,9 @@ def sim_results(portfolio_name):
     
     username = session["name"]
 
-    check_string = f"/check-sim?username={username}&portfolio_name={portfolio_name}"
+    api_key = verify_key(username) 
+
+    check_string = f"/check-sim?username={username}&portfolio_name={portfolio_name}&key={api_key}"
     check_query = sim_microservice_url + check_string
 
     sim_run = call_sim_microservice(check_query)
@@ -633,7 +684,7 @@ def sim_results(portfolio_name):
         flash(sim_run["error_msg"], "error")
         return redirect(f"/sim/{portfolio_name}")
     else:
-        return render_template("sim-results.html", username=username, portfolio_name=portfolio_name)
+        return redirect(f"/dashboard/report?username={username}&portfolio_name={portfolio_name}&key={api_key}")
 
 
 if __name__ == "__main__":

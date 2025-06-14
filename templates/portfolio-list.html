@@ -37,13 +37,8 @@
             </div>
 
             <div style="text-align: center;">
-                <h3>
-                    <li>
-                        <a href="/portfolio-view/Default-Portfolio">Default Portfolio</a>
-                    </li>
-                </h3>
-                {% if custom_portfolios | length > 0 %}
-                {% for portfolio in custom_portfolios %}
+                {% if portfolios | length > 0 %}
+                {% for portfolio in portfolios %}
                 <h3>
                     <li>
                         <a href="/portfolio-view/{{ portfolio['portfolio_name'] }}">{{ portfolio['portfolio_name'] }}</a>
