@@ -4,14 +4,15 @@ import dash_bootstrap_components as dbc
 from flask import Flask, request, g
 from flask_restful import Resource, Api
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import pymongo
 from pymongo import MongoClient
 import simplejson
 import requests
 import json
-import time
-import json
+
+
 
 
 client = MongoClient()
@@ -40,13 +41,55 @@ def layout(username=None, portfolio_name=None, key=None, **kwargs):
     sim_results = sim_run["results"]
     yearly_avgs = sim_results["yearly_avgs"]
     # global yearly_df
-    yearly_df = pd.DataFrame(yearly_avgs)
 
-    options = list(yearly_df.columns)
+
+    df = pd.DataFrame(yearly_avgs)
+    options = list(df.columns)
 
     options.remove("year")
+    options = [x for x in options if "_std" not in x]
 
-    fig = px.bar(yearly_df, x="year", y="portfolio_nominal_mean")
+    x_vals = list(df["year"])
+    y_vals = list(df["Portfolio Nominal"])
+    error_vals = list(df["Portfolio Nominal_std"])
+    fig = go.Figure(data=[go.Bar(x=x_vals, y=y_vals, name="$", 
+                                hovertemplate="$%{y}<extra></extra>",
+                                hoverlabel=dict(align="left"))])
+    fig.add_trace(go.Scatter(
+        x=x_vals,
+        y=y_vals,
+        error_y=dict(type='data', array=error_vals, visible=True),
+        mode='markers',
+        marker_color='black',
+        showlegend=True,
+        name='Standard Deviation')
+    )
+    fig.update_layout(showlegend=True)
+    fig.update_layout(
+        title=dict(
+        text="Portfolio Nominal"
+        ),
+        xaxis=dict(
+            title=dict(
+                text="Year"
+            )
+        ),
+        yaxis=dict(
+            title=dict(
+                text="$ Value"
+            )
+        ),
+        legend=dict(
+            title=dict(
+                text="Legend Title"
+            )
+        ),
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="RebeccaPurple"
+        )
+    )
 
     navbar = dbc.NavbarSimple(
     children=[
@@ -55,7 +98,7 @@ def layout(username=None, portfolio_name=None, key=None, **kwargs):
     )
     return html.Div([
     navbar,
-    html.H4('Restaurant tips by day of week'),
+    html.H1(f'{portfolio_name} Simulated Returns'),
     dcc.Dropdown(
         id="dropdown",
         options=options,
@@ -65,7 +108,7 @@ def layout(username=None, portfolio_name=None, key=None, **kwargs):
         id="graph",
         figure=fig),
 
-    dcc.Store(id='intermediate-value', data=yearly_df.to_json(orient="records"))
+    dcc.Store(id='intermediate-value', data=df.to_json(orient="records"))
 
     ]),
     
@@ -77,5 +120,61 @@ def layout(username=None, portfolio_name=None, key=None, **kwargs):
     prevent_initial_call=True)
 def change_graph(value, data, **_kwargs):
     df = pd.read_json(data)
-    fig = px.bar(df, x="year", y=value)
+    error_name = value + "_std"
+    if value == "Inflation":
+        y_label = "% Rate"
+        multiplier = 100
+        symbol = "%"
+        hovertemplate = "%%{y}<extra></extra>"
+    else:
+        y_label = "$ Value"
+        multiplier = 1
+        symbol = "$"
+        hovertemplate = "$%{y}<extra></extra>"
+
+    
+    x_vals = list(df["year"])
+    y_vals = list(df[value])
+
+    y_vals = [x * multiplier for x in y_vals]
+
+    error_vals = list(df[error_name])
+
+    error_vals = [x * multiplier for x in error_vals]
+
+    
+
+    fig = go.Figure(data=[go.Bar(x=x_vals, y=y_vals, name=symbol, 
+                                hovertemplate=hovertemplate,
+                                hoverlabel=dict(align="left"))])
+    fig.add_trace(go.Scatter(
+        x=x_vals,
+        y=y_vals,
+        error_y=dict(type='data', array=error_vals, visible=True),
+        mode='markers',
+        marker_color='black',
+        showlegend=True,
+        name='Standard Deviation')
+    )
+    fig.update_layout(
+        title=dict(
+            text=f"{value}"
+        ),
+        xaxis=dict(
+            title=dict(
+                text="Year"
+            )
+        ),
+        yaxis=dict(
+            title=dict(
+                text=f"{y_label}"
+            )
+        ),
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="RebeccaPurple"
+        )
+    )
+    
     return fig

@@ -635,6 +635,10 @@ def sim_portfolio(portfolio_name):
     if not reinvest:
         reinvest = True
 
+    if int(horizon) < 1:
+        flash("you must have an investment time horizon greater than 0 years", "error")
+        return redirect(f"/sim/{portfolio_name}")
+
     query_string = "/sim?user_stocks=" + str(user_stocks)
     query_string += "&user_bonds=" + str(user_bonds)
     query_string += "&user_cash=" + str(user_cash)
