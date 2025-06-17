@@ -1,0 +1,191 @@
+
+body {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 400;
+}
+
+header {
+    background-color: antiquewhite;
+    margin: 2%;
+    padding: 2%;
+
+}
+
+header.header {
+    height: 120px
+}
+
+.header img {
+    float: left;
+    width: 100px;
+    height: 85px;
+  }
+  
+.header h1 {
+    position: relative;
+    top: 18px;
+    left: 10px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 400;
+  }
+
+nav {
+    text-align: left;
+}
+
+nav a {
+    background-color: lightblue;
+    border: 2px solid gray;
+    font-size: large;
+    margin: 5px;
+    padding: 5px;
+}
+
+nav a:hover {
+    background-color: antiquewhite;
+    color: coral;
+}
+
+main {
+    background-color: whitesmoke;
+}
+
+footer {
+    background-color: antiquewhite;
+    margin: 2%;
+    padding: 2%;
+}
+
+
+
+.formInputs {
+  position: relative;
+  width: 250px;
+  margin: 0 auto;
+}
+
+.formInputs label {
+  position: absolute;
+  right: 100%;
+  padding-right: 100px;
+  white-space: nowrap;
+}
+
+.formInputs input,
+.formInputs textarea {
+  width: 100%;
+}
+
+fieldset {
+    margin: 5px;
+    padding: 5px;
+}
+
+legend {
+    font-weight: bold;
+}
+
+button {
+    background-color: black;
+    color: white;
+    padding: 5px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 400;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: 2px solid #44d2ec;
+}
+
+button:hover {
+    background-color: antiquewhite;
+    color: black;
+}
+
+.idx-button {
+    background-color: black;
+    color: white;
+    padding: 5px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 400;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: 2px solid #44d2ec;
+
+}
+
+.alert {
+
+    margin: 5px;
+    padding: 5px;
+    border-color: black;
+    font-weight: bold;
+    
+}
+
+.select-row label {
+
+    display: inline-block;
+    width: auto;
+    text-align: right;
+
+}
+
+.select-picker {
+    padding-left: 10px;
+}
+
+
+.dataTables_filter {
+    width: 50%;
+    float: right;
+    text-align: right;
+ }
+
+.loading {
+    margin: auto;
+    width: 60%;
+    padding-left: 100px;
+} 
+
+section {
+    margin: 2%;
+    padding: 2%;
+}
+
+article {
+
+    border:1px;
+    margin:2%;
+    padding:2%;
+    
+}
+
+caption {
+    caption-side: top;
+    text-align: left;
+    padding-bottom: 10px;
+    font-weight: bold;
+    color: red;
+} 
+
+.content {
+    justify-content: space-around;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+}
+
+figure {
+    text-align: center;
+}
+
+figcaption {
+    font-size: 24px;
+    text-align: center;
+}

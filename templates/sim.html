@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" type="text/css" href="../static/main.css">
+        
+        
+        <title>Portfolio Simulator</title>
+    </head>
+    <body style="overflow: visible">
+        <main>
+            <header class="header">
+                <img src="../static/logo.png">
+                <h1>Profile</h1>
+            </header>
+            <nav>
+                <a href="/profile">Profile</a>
+                <a href="/portfolio-list">Portfolio List</a>
+                <a href="/custom-portfolio">Create Custom Portfolio</a>
+                <div style="text-align: right;">
+                    <a href="/help">Help</a>
+                    <a href="/logout">Log Out</a>
+                </div>
+            </nav>
+            <div class="alert">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>   
+
+            <div style="text-align: center; padding-top: 5%;" >
+                <h2>{{ portfolio["portfolio_name"] }}</h2>
+                <br>
+                <h4>Stock Allocation: {{ portfolio["stocks"] * 100 }}%</h4>
+                <h4>Bond Allocation: {{ portfolio["bonds"] * 100 }}%</h4>
+                <h4>Cash Allocation: {{ portfolio["cash"] * 100 }}%</h4>
+            </div>
+                     
+            
+            <div style="display: flex; justify-content: center;">
+                <form class="selections" method="post" action="/sim-portfolio/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                    <!-- <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}"> -->
+                    <fieldset>
+                        <legend>Input Values</legend>
+
+                        <p class="formInputs">
+                            <label for="stock-ret">Average Annual Stock Returns</label>
+                            <input step="0.01" min="-25" max="50" type="number" id="stock-ret" name="stock-ret" placeholder="{{ stock_yield }}%"><br>
+                        </p><br>
+                        
+                        <p class="formInputs">
+                            <label for="stock-std">Stock Returns Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="stock-std" name="stock-std" placeholder="{{ stock_std }}%"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="stock-div">Annual Stock Dividends</label>
+                            <input step="0.01" min="0" max="25" type="number" id="stock-div" name="stock-div" placeholder="{{ stock_div }}%"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="bond-ret">Average Annual Bond Returns</label>
+                            <input step="0.01" min="-25" max="50" type="number" id="bond-ret" name="bond-ret" placeholder="{{ bond_yield }}%"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="bond-std">Bond Returns Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="bond-std" name="bond-std" placeholder="{{ bond_std }}%"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="bond-div">Annual Bond Dividends</label>
+                            <input step="0.01" min="0" max="25" type="number" id="bond-div" name="bond-div" placeholder="{{ bond_div }}%"><br>
+                        </p><br>
+
+                        
+                        <p class="formInputs">
+                            <label for="inflation-rate">Average Inflation Rate</label>
+                            <input step="0.01" min="-10" max="25" type="number" id="inflation-rate" name="inflation-rate" placeholder="{{ inflation_rate }}%"><br>
+                        </p><br>
+                        
+
+                        <p class="formInputs">
+                            <label for="inflation-std">Inflation Standard Deviation</label>
+                            <input step="0.01" min="0" max="25" type="number" id="inflation-std" name="inflation-std" placeholder="{{ inflation_std }}%"><br>
+                        </p><br>
+
+
+                        <p class="formInputs">
+                            <label for="horizon">Investment Time Horizon</label>
+                            <input min="1" type="number" id="horizon" name="horizon" placeholder="{{ horizon }}"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for ="principal">Principal Investment Amount</label>
+                            <input min="100" type="number" id="principal" name="principal" placeholder="$1000"><br>
+                        </p><br>
+
+                        <p class="formInputs">
+                            <label for="sims">Number of Simulations</label>
+                            <input type="number" id="sims" name="sims" placeholder="1000" min="10" max="10000">
+                        </p><br>
+            
+                        <P>Reinvest Dividends?</P>
+                        <label for="reinvest">True</label>
+                        <input type="radio" id="reinvest" name="reinvest" value="True" required="True"><br>
+                        <label for="reinvest">False</label>
+                        <input type="radio" id="reinvest" name="reinvest" value="False">
+                        
+
+                    </fieldset>
+
+                    <button class="idx-button" type="submit">Sim</button>
+                </form>
+            </div>
+            
+            
+
+        </main>
+        <footer>
+            <p>&copy; 2025 anperger</p>
+        </footer>
+    </body>
+</html>
+

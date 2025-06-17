@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" type="text/css" href="../static/main.css">
+        
+        
+        <title>Portfolio Simulator</title>
+    </head>
+    <body style="overflow: visible">
+        <main>
+            <header class="header">
+                <img src="../static/logo.png">
+                <h1>Profile</h1>
+            </header>
+            <nav>
+                <a href="/profile">Profile</a>
+                <a href="/portfolio-list">Portfolio List</a>
+                <a href="/custom-portfolio">Create Custom Portfolio</a>
+                <div style="text-align: right;">
+                    <a href="/help">Help</a>
+                    <a href="/logout">Log Out</a>
+                </div>
+            </nav>
+            <div class="alert">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div style="text-align: center;">
+                <section>
+                    <article>
+                        <h2>Getting started</h2>
+                        <br>
+                        <h3>Step 1: Create an account</h3>
+                        <p>
+                            Congrats, you already completed step 1 by creating an account
+                        </p>
+                        <br>
+                        <h3>Step 2: Complete your profile</h3>
+                        <p>
+                            In order to take advantage of the portfolio builder function, you must first complete your profile 
+                            with a few simple details. The first profile variable is your investment time horizon, or the amount of 
+                            time you expect to hold onto your investments before selling. This can also mean that part of your portfolio 
+                            is going to be held in cash if your investment horizon is very short.
+                        </p>
+                        <p>
+
+                            The other variable of your profile is risk tolerance. This is simply a measure of how comfortable you are 
+                            with investment risk and potential losses. For example, stocks are more risky than bonds, but also have more 
+                            potential upside return on investment. So, in general, people with a higher risk tolerance will have more of 
+                            their portfolio in stocks because that provides greater chance of high returns, but at the risk of more 
+                            dramatic losses.
+                        </p>
+                        <p>
+                            You can change both of these settings in the profile tab, and if you are unsure about your level of risk 
+                            tolerance there is a brief survey which will assign you a level of risk tolerance based on your responses.
+                        </p>
+                        <h3>Step 3: Look at your portfolio</h3>
+                        <p>
+                            As soon as you have completed your profile (and any time afterwards you update it) a personalized portfolio 
+                            will be automatically built for you. You can view this portfolio by selecting it on the Portfolio List tab.
+                        </p>
+                        <h3>Step 4 (optional): Create a customized portfolio </h3>
+                        <p>
+                            Click on the "Create Customized Portfolio" tab and you will be able to make your own portfolio with whatever 
+                            asset allocations you choose. This portfolio will be added to you list and can be viewed, edited, or deleted.
+                        </p>
+                        <h3>Step 5: Simulate your portfolio</h3>
+                        <p>
+                            From the page where you view your potfolio, you will be able to either view a previous simulation or run a 
+                            new simulation. You will be able to modify all the input variables for the simulation besides the asset 
+                            allocation of the portfolio. The default values for the simulation are based on historical averages, and 
+                            will be automatically used unless you specify a different value. 
+                        </p>
+                        <p>
+                            Example: you run a simulation for your portfolio that is comprised of 50% stocks and 50% bonds. You modify 
+                            the average yearly return and standard deviation for stocks, but you do not change any of the values for 
+                            bonds or inflation. The simulation will run with your modified stock return and standard deviation numbers 
+                            while all other calculations will be done using historical averages. 
+                        </p>
+                        <h3>Step 6: Look at the simulation results dashboard</h3>
+                        <p>
+                            Once your simulation is run, you will automatically be taken to the dashboard page where you can view the results 
+                            of your simulation. These results are generated using a simple Monte Carlo method and what you see are is the 
+                            arithmatic mean (both nominal and real) returns of your portfolio.
+                        </p>
+                        
+                    </article>
+
+                </section>
+            </div>
+
+        </main>
+        <footer>
+            <p>&copy; 2025 anperger</p>
+        </footer>
+    </body>
+</html>

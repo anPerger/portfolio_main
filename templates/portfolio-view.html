@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" type="text/css" href="../static/main.css">
+        
+        
+        <title>Portfolio Simulator</title>
+    </head>
+    <body style="overflow: visible">
+        <main>
+            <header class="header">
+                <img src="../static/logo.png">
+                <h1>Profile</h1>
+            </header>
+            <nav>
+                <a href="/profile">Profile</a>
+                <a href="/portfolio-list">Portfolio List</a>
+                <a href="/custom-portfolio">Create Custom Portfolio</a>
+                <div style="text-align: right;">
+                    <a href="/help">Help</a>
+                    <a href="/logout">Log Out</a>
+                </div>
+            </nav>
+            <div class="alert">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>   
+                     
+            <div style="text-align: center; padding-top: 5%;" >
+                <h2>{{ portfolio["portfolio_name"] }}</h2>
+                <br>
+                <h4>Stock Allocation: {{ portfolio["stocks"] * 100 }}%</h4>
+                <h4>Bond Allocation: {{ portfolio["bonds"] * 100 }}%</h4>
+                <h4>Cash Allocation: {{ portfolio["cash"] * 100 }}%</h4>
+            </div>
+            <div style="display: flex; justify-content: center;">
+                <form class="selections" method="post" action="/sim/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                    <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}">
+                    <button class="idx-button" type="submit">Sim</button>
+                </form>
+                <form class="selections" method="post" action="/sim-results/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                    <input type="text" id="portfolio-name" name="portfolio-name" hidden="True" value="{{ portfolio['name'] }}">
+                    <button class="idx-button" type="submit">View Previous Sim</button>
+                </form>
+            </div>
+
+            <div style="display: flex; justify-content: center;">
+               
+                    <form class="selections" method="post" action="/edit-portfolio/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                        <button class="idx-button" type="submit">Edit Portfolio</button>
+                    </form>
+                    <form class="selections" method="post" action="/delete-portfolio/{{ portfolio['portfolio_name'] }}" style="padding: 2%;">
+                        <button onclick="clicked(event)" class="idx-button" type="submit">Delete Portfolio</button>
+                    </form>
+                
+            </div>
+
+            
+
+        </main>
+        <footer>
+            <p>&copy; 2025 anperger</p>
+        </footer>
+    </body>
+</html>
+<script type="text/javascript">
+    function show_div(id) {
+        console.log(id)
+        let e = document.getElementById(id);
+        console.log(e)
+        e.style.display = 'block';
+    }
+</script>
+<script>
+    function clicked(e)
+    {
+        if(!confirm('Are you sure?\nThis action is permenent and cannot be undone')) {
+            e.preventDefault();
+        }
+    }
+    </script>
+
+<!-- <script type="text/javascript">
+    function toggle_visibility(id) {
+        let nav_options = ["profile-update"];
+        console.log(nav_options);
+        let remain_options = nav_options.filter(function(navs) { return navs !== id })
+        console.log(remain_options);
+
+        for (let i = 0; i < remain_options.length; i++) {
+            console.log(i);
+            let x = document.getElementById(remain_options[i]);
+            console.log(x)
+            x.style.display = 'none';
+
+        }
+
+        let e = document.getElementById(id);
+        if(e.style.display == 'block')
+           e.style.display = 'none';
+        else
+           e.style.display = 'block';
+    }
+ </script> -->
